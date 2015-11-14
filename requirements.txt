@@ -6,3 +6,4 @@ lxml==3.3.5
 python-dateutil==1.5
 python-social-auth==0.2.13
 reportlab==3.0
+django-social-auth==0.7.28

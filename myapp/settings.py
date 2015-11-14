@@ -30,9 +30,9 @@ LOGIN_REDIRECT_URL = '/accounts/post_login/'
 
 DEBUG = False
 
-TEMPLATE_DEBUG = False
+TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['.herokuapp.com']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

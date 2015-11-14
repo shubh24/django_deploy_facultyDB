@@ -28,11 +28,11 @@ GOOGLE_OAUTH2_CLIENT_SECRET = '7Rn2MDrIj7rd5FkQwGA3Igv4'
 
 LOGIN_REDIRECT_URL = '/accounts/post_login/'
 
-DEBUG = True
+DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition

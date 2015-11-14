@@ -5,3 +5,4 @@ psycopg2==2.6.1
 lxml==3.3.5
 python-dateutil==1.5
 python-social-auth==0.2.13
+reportlab==3.0
