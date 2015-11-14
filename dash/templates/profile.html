@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+{% block head %}Profile{% endblock %}
+
+{% block content %}
+<div class='profile'>
+<center>
+<h1> Name : {{profile.name}}</h1>
+<p> PSRN : {{profile.psrn}}</p>
+<!--<p> Joining Date : {{job.join_date}}</p>-->
+<p>Undergraduate from : {{job.underGrad}}</p>
+<p>Postgraduate from : {{job.postGrad}}</p>
+<p>Designation : {{job.designation}}</p>
+<p><b>Papers published</b> : {{acads.papersPublished}}</p>
+<p><b>Books published</b> : {{acads.booksPublished}}</p>
+{{papers.paperTitle}}
+{{papers.publication}}
+</center>
+<a href='/reportProf/{{profile.id}}'> Generate Professor's Report </a>
+</div>
+{% endblock %}

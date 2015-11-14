@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Filter Profiles{% endblock %}
+{% block head %}Filter Profiles{% endblock %}
+{% block content %}
+<div class="filters">
+<center>
+<form action="/generatedReport/" style="display:inline"method="post" enctype="multipart/form-data">
+<ul style="list-style : none">
+{{form.as_ul}}
+</ul>
+
+<input type="submit" name="submit" value="Apply Filters">
+</form>
+</center>
+</div>
+{% endblock %}

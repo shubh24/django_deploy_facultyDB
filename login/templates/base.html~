@@ -1,0 +1,30 @@
+{% load staticfiles %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+    <head>
+	<center>
+        <title>Django Login Application |
+        {% block title %}{% endblock %}</title>        
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="{% static "css/login.css" %}">
+	</center>    
+    </head>
+    <body>
+	<div class="page-header">
+		<span style="font-size:250%">
+			 <a href="/home">BITS Pilani</a>
+		</span>
+		<span style="float : right;font-size:150%">
+			<a href="/logout" >Logout</a>
+		</span>
+	</div>
+	
+        <h1>{% block head %}{% endblock %}</h1>
+        {% block content %}{% endblock %}
+ 
+    </body>
+</html>
+
+

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='createJobs'>
+<center>
+<form action="/job/{{profile_id}}/" method="post" enctype="multipart/form-data">{% csrf_token %}
+{{form.as_table}}
+
+<input type="submit" name="submit" value="Save & Continue">
+</form>
+</center>
+</div>
+{% endblock %}
+

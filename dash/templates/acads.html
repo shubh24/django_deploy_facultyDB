@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class='createAcads'>
+<center>
+<form action="/acads/{{profile_id}}/" method="post" enctype="multipart/form-data">{% csrf_token %}
+<ul style="list-style : none">
+{{form.as_ul}}
+</ul>
+
+<input type="submit" name="submit" value="Save & Continue">
+</form>
+</center>
+</div>
+{% endblock %}
+

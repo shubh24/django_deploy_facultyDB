@@ -1,0 +1,40 @@
+
+body {
+    padding-left: 15px;
+    font-family: 'Georgia';  
+}
+
+.page-header {
+    background-color: #43C6DB;
+    margin-top: 0;
+    padding: 20px 20px 20px 40px;
+    color : red;
+}
+
+
+.requirements {
+    margin-top: 20;
+    padding: 0px 20px 20px 40px;
+    font-size : 150%;
+}
+
+.login-page,.createProfile,.createAcads,.createJobs,.profile,.filters{
+    font-size : 150%;
+    text-align : center;
+}
+
+.register-form{
+        font-size : 150%;
+}
+
+.making{
+    text-align : center;
+    font-size : 200%;
+    color : #FF0000;
+}
+
+.xyz{
+    text-align : center;
+    font-size : 150%;
+    color : #FF0000;
+}
