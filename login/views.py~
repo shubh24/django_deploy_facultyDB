@@ -17,7 +17,7 @@ def register(request):
             password=form.cleaned_data['password1'],
             email=form.cleaned_data['email']
             )
-	    a=user.save()
+            print username
             return HttpResponseRedirect('/register/success/')
     else:
         form = RegistrationForm()

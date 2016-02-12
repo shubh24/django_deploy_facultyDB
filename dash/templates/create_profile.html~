@@ -12,8 +12,6 @@
 </form>
 <br/>
 
-<li><a href="/job/{{profile_id}}/">Edit Professor's Job/Edu Experience</a></li>
-<li><a href="/acads/{{profile_id}}/">Edit Professor's Academic Profile</a></li>
 </center>
 </div>
 {% endblock %}

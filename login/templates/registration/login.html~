@@ -18,7 +18,7 @@
         <input type="hidden" name="next" value="/home" />
     </form>
     <a href="/register">Register</a>
-
+	<br/>
 	<a href = "{% url 'socialauth_begin' 'google-ouath2' %}"> Login with Google </a>
     </center>
     </div>

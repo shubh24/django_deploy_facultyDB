@@ -7,7 +7,9 @@
 {{formset.management_form}}
 
 {% for form in formset %}
+      <br/> New Paper <br/>
       {{ form.as_p }}
+      <br/>
 {% endfor %}
 
 <input type="submit" name="submit" value="Save & Continue">

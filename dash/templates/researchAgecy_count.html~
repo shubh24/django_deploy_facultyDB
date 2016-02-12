@@ -1,10 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class='createJobs'>
+<div class='CourseCount'>
 <center>
-{{profile_id}}
-<form action="/job/{{profile_id}}/" method="post" enctype="multipart/form-data">{% csrf_token %}
+<form action="/ResearchAgencyCount/{{profile_id}}/" method="post" enctype="multipart/form-data">{% csrf_token %}
 <ul style="list-style : none">
 {{form.as_ul}}
 </ul>

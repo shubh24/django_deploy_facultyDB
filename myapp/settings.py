@@ -28,11 +28,11 @@ GOOGLE_OAUTH2_CLIENT_SECRET = '7Rn2MDrIj7rd5FkQwGA3Igv4'
 
 LOGIN_REDIRECT_URL = '/accounts/post_login/'
 
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -77,7 +77,12 @@ LOGIN_URL = '/accounts/login/'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django_db',
+        'USER': 'shubhankar',
+        'PASSWORD': 'envy',
+        'HOST': 'localhost',   
+        'PORT': '8000'
     }
 }
 

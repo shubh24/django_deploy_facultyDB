@@ -13,10 +13,10 @@
 <p>Postgraduate from : {{job.postGrad}}</p>
 <p>Designation : {{job.designation}}</p>
 <p><b>Papers published</b> : {{acads.papersPublished}}</p>
-<p><b>Books published</b> : {{acads.booksPublished}}</p>
-{{papers.paperTitle}}
-{{papers.publication}}
+<p><b>Books published</b> : {{books.booksPublished}}</p>
+<p><b>Courses Taken</b> : {{courses.coursesTaken}}</p>
+<p><b>Grants Received</b> : {{RA.grants}}</p>
 </center>
-<a href='/reportProf/{{profile.id}}'> Generate Professor's Report </a>
+<a href='/reportProf/{{profile.psrn}}'> Generate Professor's Report </a>
 </div>
 {% endblock %}

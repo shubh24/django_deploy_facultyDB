@@ -6,7 +6,6 @@
 <div class = "requirements">    
 	<li><a href="/create/{{user.id}}">Create Professor's Profile</a></li>
 	<li><a href="/all">All Profs</a></li>
-	<a href = "{% url 'socialauth_begin' 'google-oauth2' %}"> Login with Google </a>
 </div>    
 
 {% endblock %}

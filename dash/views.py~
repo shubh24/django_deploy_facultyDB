@@ -3,31 +3,34 @@ from django.http import HttpResponseRedirect,HttpResponse
 from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from forms import ArticleForm,JobForm,AcadsForm,MyForm,FunkyForm
-#from forms import ModelFormWithFileField
-from models import Profile,Job,Acads,Papers
+from forms import ArticleForm,JobForm,AcadsForm,MyForm,FunkyForm,BooksCountForm,FunkyBooksForm,CourseCountForm,FunkyCourseForm,ResearchAgencyCountForm,FunkyResearchAgencyForm  
+from models import Profile,Job,Acads,Papers,Books_Count,Books,Course_Count,Course,ResearchAgency_Count,ResearchAgency
 from django.core.context_processors import csrf
 from reportlab.pdfgen import canvas
 from django.forms.formsets import formset_factory
 from reportlab.lib.pagesizes import letter
 from io import BytesIO
 import csv
+import random
 from django.db.models.loading import get_model
 
 @login_required
-def create(request, profile_id):
+def create(request):
+    #profile_id = random.randint(0,32768)
     if request.method == 'POST':
         form = ArticleForm(request.POST, request.FILES)
         if form.is_valid():
-	    print request.POST
+            profile_id = request.POST['psrn']
             a = form.save()
-            
-	    jform = JobForm()
-	    args = {}
-	    args.update(csrf(request))
-	    args['form'] = jform
-	    args['profile_id'] = profile_id
-	    return render_to_response('job.html', args)
+            a.psrn = profile_id
+            a.save()
+            print profile_id            
+        jform = JobForm()
+        args = {}
+        args.update(csrf(request))
+        args['form'] = jform
+        args['profile_id'] = profile_id
+        return render_to_response('job.html', args)
     else:
         form = ArticleForm()
         
@@ -35,50 +38,50 @@ def create(request, profile_id):
     args.update(csrf(request))
     
     args['form'] = form
-    args['profile_id'] = profile_id
     
     return render_to_response('create_profile.html', args)
 
 def profiles(request):
     args = {}
     args.update(csrf(request))
-    	
+        
     args['profiles'] = Profile.objects.all()
 
     return render_to_response('profiles.html', args) 
 
-def profile(request, profile_id=1):   
-    rc = RequestContext(request, {'profile': Profile.objects.get(id=profile_id),'job' : Job.objects.get(id=profile_id) ,'acads' : Acads.objects.get(id=profile_id), 'papers' : Papers.objects.get(publication='ACM')})
+def profile(request, profile_id):   
+    rc = RequestContext(request, {'profile': Profile.objects.filter(psrn=profile_id).first(),'job' : Job.objects.filter(psrn=profile_id).first() ,'acads' : Acads.objects.filter(psrn=profile_id).first(),'books' : Books_Count.objects.filter(psrn=profile_id).first(),'courses' : Course_Count.objects.filter(psrn=profile_id).first(),'researchAgency':ResearchAgency_Count.objects.filter(psrn=profile_id).first()})
     return render_to_response('profile.html',context_instance=rc)
 
 @login_required
 def report(request):
-	model = Profile
-	response = HttpResponse(content_type='text/csv')
-	response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
-	writer = csv.writer(response)
+    model = Profile
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+    writer = csv.writer(response)
 
-	headers = []
-	for field in model._meta.fields:
-		headers.append(field.name)
-	writer.writerow(headers)
+    headers = []
+    for field in model._meta.fields:
+        headers.append(field.name)
+    writer.writerow(headers)
 
-	for obj in Profile.objects.all():
-		row = []
-		for field in headers:
-			val = getattr(obj, field)
-			if type(val) == unicode:
-				val = val.encode("utf-8")
-			print val,field			
-			row.append(val)
-		writer.writerow(row)
-	return response
+    for obj in Profile.objects.all():
+        row = []
+        for field in headers:
+            val = getattr(obj, field)
+            if type(val) == unicode:
+                val = val.encode("utf-8")
+            print val,field            
+            row.append(val)
+        writer.writerow(row)
+    return response
 
+@login_required
 def reportProf(request, profile_id):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
 
-    buffer = BytesIO()	 
+    buffer = BytesIO()     
 
     model = Profile
     
@@ -87,54 +90,94 @@ def reportProf(request, profile_id):
     p.setLineWidth(.3)
     p.setFont('Helvetica', 12)
  
-    pro = Profile.objects.get(id=profile_id)
-    j = Job.objects.get(id=profile_id)
-    a = Acads.objects.get(id=profile_id)
-    pa = Papers.objects.filter()
-    print pa
+    pro = Profile.objects.filter(psrn=profile_id).first()
+    j = Job.objects.filter(psrn=profile_id).first()
+    pa = Papers.objects.all().filter(psrn=profile_id).values()
+    bo = Books.objects.all().filter(psrn=profile_id).values()
+    co = Course.objects.all().filter(psrn=profile_id).values()
+    ra = ResearchAgency.objects.all().filter(psrn=profile_id).values()
 
-    line = 0	
-    headers = []	
+    line = 0    
+    headers = []    
     for field in model._meta.fields:
-	headers.append(field.name)
+        headers.append(field.name)
 
     for field in headers:
-	val = getattr(pro, field)
-	if field != 'id':
-		p.drawString(30,800-20*line,field + ': ' + str(val))
-		line += 1
-
+        val = getattr(pro, field)
+        if field != 'id':
+            p.drawString(30,800-20*line,field + ': ' + str(val))
+            line += 1
+    p.showPage()
+    line=0
     headers = []
     for field in Job._meta.fields:
-	headers.append(field.name)
+        headers.append(field.name)
 
     for field in headers:
-	val = getattr(j, field)
-	if field != 'id' and field != 'profile':
-		p.drawString(30,800-20*line,field + ': ' + str(val))
-		line += 1
-
-    headers = []
-    for field in Acads._meta.fields:
-	headers.append(field.name)
-    for field in headers:
-	val = getattr(a, field)
-	if field != 'id' and field != 'profile':
-		p.drawString(30,800-20*line,field + ': ' + str(val))
-		line += 1
-
+        val = getattr(j, field)
+        if field != 'psrn' and field != 'profile' and field != 'id':
+            p.drawString(30,800-20*line,field + ': ' + str(val))
+            line += 1
+    p.showPage()
+    line=0
     headers = []
     for field in Papers._meta.fields:
-	headers.append(field.name)
-    for field in headers:
-	for x in pa:
-		val = getattr(x, field)
-		if field != 'id' and field != 'profile':
-			p.drawString(30,800-20*line,field + ': ' + str(val))
-			line += 1
-
-    # Close the PDF object cleanly, and we're done.
+        headers.append(field.name)
+    for x in pa:
+        p.drawString(30,800-20*line,"Paper")
+        line += 1
+        for field in headers:
+            if field != 'psrn' and field != 'profile' and field != 'id':
+                val = x[field]
+                p.drawString(30,800-20*line,field + ': ' + str(val))
+                line += 1
+        line+=1
     p.showPage()
+    line=0
+    headers = []
+    for field in Books._meta.fields:
+        headers.append(field.name)
+    for x in bo :
+        p.drawString(30,800-20*line,"Book")
+        line += 1
+        for field in headers:
+            if field != 'psrn' and field != 'profile' and field != 'id':
+                val = x[field]
+                p.drawString(30,800-20*line,field + ': ' + str(val))
+                line += 1
+        line+=1
+    p.showPage()
+
+    line=0
+    headers = []
+    for field in Course._meta.fields:
+        headers.append(field.name)
+    for x in bo :
+        p.drawString(30,800-20*line,"Course")
+        line += 1
+        for field in headers:
+            if field != 'psrn' and field != 'profile' and field != 'id':
+                val = x[field]
+                p.drawString(30,800-20*line,field + ': ' + str(val))
+                line += 1
+        line+=1
+    p.showPage()
+
+    line=0
+    headers = []
+    for field in ResearchAgency._meta.fields:
+        headers.append(field.name)
+    for x in bo :
+        p.drawString(30,800-20*line,"Research Grant")
+        line += 1
+        for field in headers:
+            if field != 'psrn' and field != 'profile' and field != 'id':
+                val = x[field]
+                p.drawString(30,800-20*line,field + ': ' + str(val))
+                line += 1
+        line+=1
+    p.showPage()
+
     p.save()
 
     pdf = buffer.getvalue()
@@ -148,12 +191,12 @@ def makePdf(request):
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
 
-    buffer = BytesIO()	 
+    buffer = BytesIO()     
 
     model = Profile
     headers = []
     for field in model._meta.fields:
-	headers.append(field.name)
+        headers.append(field.name)
     
     p = canvas.Canvas(buffer)
     p.setLineWidth(.3)
@@ -161,17 +204,17 @@ def makePdf(request):
  
     line = 0
     for obj in Profile.objects.all():
-	line += 1
-	string = ""
-	for field in headers:
-		if field == 'name' or field == 'psrn':		
-			val = getattr(obj, field)
-			if type(val) == unicode:
-				val = val.encode("utf-8")
-		
-			string = string + ' ' + str(val)		
-	p.drawString(30,800-50*line,string)
-	
+        line += 1
+        string = ""
+        for field in headers:
+            if field == 'name' or field == 'psrn':        
+                val = getattr(obj, field)
+                if type(val) == unicode:
+                    val = val.encode("utf-8")
+            
+                string = string + ' ' + str(val)        
+        p.drawString(30,800-50*line,string)
+    
 
     # Close the PDF object cleanly, and we're done.
     p.showPage()
@@ -184,135 +227,343 @@ def makePdf(request):
 
 
 def filters(request):
-	form = MyForm()
-	return render(request,'filters.html',{'form': form})
+    form = MyForm()
+    return render(request,'filters.html',{'form': form})
 
 @login_required    
 def generatedReport(request):
     if request.method == 'POST':
-	f = MyForm(request.POST,request.FILES)
-	if f.is_valid():	    
-	    search = f.cleaned_data['Search']
-	    sign = f.cleaned_data['Name'] 
-	    response = HttpResponse(content_type='application/pdf')
-	    response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
+        f = MyForm(request.POST,request.FILES)
+        if f.is_valid():        
+            search = f.cleaned_data['Search']
+            sign = f.cleaned_data['Name'] 
+            response = HttpResponse(content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="somefilename.pdf"'
 
-	    buffer = BytesIO()	 
+            buffer = BytesIO()     
 
-	    model = Profile
-	    headers = []
-	    for field in model._meta.fields:
-		headers.append(field.name)
-	    
-	    p = canvas.Canvas(buffer)
-	    p.setLineWidth(.3)
-	    p.setFont('Helvetica', 12)
-	 
-	    line = 0
-	    for obj in Profile.objects.all():
-		line += 1
-		string = ""
-		for field in headers:
-			if field == 'name':		
-				val = getattr(obj, field)
-				if type(val) == unicode:
-					val = val.encode("utf-8")
-				if (((val <= search) and (int(sign) == 1)) or ((val == (search)) and (int(sign) == 2)) or ((val >= (search)) and (int(sign) == 3))):
-					string = string + ' ' + str(val)		
-		p.drawString(30,800-50*line,string)
-	
+            model = Profile
+            headers = []
+            for field in model._meta.fields:
+                headers.append(field.name)
+            
+            p = canvas.Canvas(buffer)
+            p.setLineWidth(.3)
+            p.setFont('Helvetica', 12)
+         
+            line = 0
+            for obj in Profile.objects.all():
+                line += 1
+                string = ""
+                for field in headers:
+                    if field == 'name':        
+                        val = getattr(obj, field)
+                        if type(val) == unicode:
+                            val = val.encode("utf-8")
+                        if (((val <= search) and (int(sign) == 1)) or ((val == (search)) and (int(sign) == 2)) or ((val >= (search)) and (int(sign) == 3))):
+                            string = string + ' ' + str(val)        
+            p.drawString(30,800-50*line,string)
+        
 
-	    # Close the PDF object cleanly, and we're done.
-	    p.showPage()
-	    p.save()
+            # Close the PDF object cleanly, and we're done.
+            p.showPage()
+            p.save()
 
-	    pdf = buffer.getvalue()
-	    buffer.close()
-	    response.write(pdf)
-	    return response
+            pdf = buffer.getvalue()
+            buffer.close()
+            response.write(pdf)
+            return response
 
 
 
 @login_required
 def job(request, profile_id):
-	if request.method == 'POST':
-		form = JobForm(request.POST, request.FILES)
-		if form.is_valid():
-		    found_user = Profile.objects.get(id=profile_id)
-		    a = form.save()
-		    a.profile = found_user
-		    a.save()
-
-		    aform = AcadsForm()
-	     	    args = {}
-		    args.update(csrf(request))		    
-		    args['form'] = aform
-		    args['profile_id'] = profile_id
-		    return render_to_response('acads.html', args)
-	else:
-		form = JobForm()
-		
-	args = {}
-	args.update(csrf(request))
-	    
-	args['form'] = form
-	args['profile_id'] = profile_id
-	return render_to_response('job.html', args)
+    if request.method == 'POST':
+        form = JobForm(request.POST, request.FILES)
+        if form.is_valid():
+            #found_user = Profile.objects.get(psrn=profile_id)
+            a = form.save()
+            a.psrn = profile_id
+            
+            print 'yo'
+            a.save()
+            aform = AcadsForm()
+            args = {}
+            args.update(csrf(request))            
+            args['form'] = aform
+            args['profile_id'] = profile_id
+            return render_to_response('acads.html', args)
+    else:
+        form = JobForm()
+        
+    args = {}
+    args.update(csrf(request))
+        
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('job.html', args)
 
 @login_required
 def acads(request, profile_id):
-	if request.method == 'POST':
-		form = AcadsForm(request.POST, request.FILES)
-		if form.is_valid():
-		    found_user = Profile.objects.get(id=profile_id)
-		    a = form.save()
-		    a.profile = found_user
-		    numberOfForms = form.cleaned_data.get('papersPublished')
-		    a.save()
-		    
-		    form = FunkyForm(request.POST,request.FILES)
-		    FunkyFormSet = formset_factory(FunkyForm,extra=numberOfForms, max_num=numberOfForms)
-		    formset = FunkyFormSet()
-	     	    args = {}
-		    args.update(csrf(request))		    
-		    args['formset'] = formset
-		    args['form'] = form
-		    args['profile_id'] = profile_id
-		    return render_to_response('createPapers.html', args)
-	else:
-		form = AcadsForm()
-		
-	args = {}
-	args.update(csrf(request))
-	    
-	args['form'] = form
-	args['profile_id'] = profile_id
-	return render_to_response('acads.html', args)
+    if request.method == 'POST':
+        form = AcadsForm(request.POST, request.FILES)
+        if form.is_valid():
+            #found_user = Profile.objects.get(psrn=profile_id)
+            a = form.save()
+            a.psrn = profile_id
+            numberOfPapers = form.cleaned_data.get('papersPublished')
+            a.save()
+            
+            form = FunkyForm(request.POST,request.FILES)
+            FunkyFormSet = formset_factory(FunkyForm,extra=numberOfPapers, max_num=numberOfPapers)
+            formset = FunkyFormSet()
+            args = {}
+            args.update(csrf(request))            
+            args['formset'] = formset
+            args['form'] = form
+            args['profile_id'] = profile_id
+            return render_to_response('createPapers.html', args)
+    else:
+        form = AcadsForm()
+        
+    args = {}
+    args.update(csrf(request))
+        
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('acads.html', args)
 
 
 @login_required
 def createPapers(request, profile_id):
-	if request.method == 'POST':
-		
-		FunkyFormSet = formset_factory(FunkyForm,extra=3, max_num=3)
-		formset = FunkyFormSet(request.POST)		
-		#form = FunkyForm(request.POST, request.FILES)
-	        for f_form in formset:
-			if f_form.is_valid():
-			    found_user = Profile.objects.get(id=profile_id)
-			    a = f_form.save()
-			    a.profile = found_user
-			    print a
-			    a.save()
-	    	return HttpResponseRedirect('/all/')
-	else:
-		FunkyFormSet = formset_factory(FunkyForm, extra=10, max_num=10)
-		formset = FunkyFormSet()
-	        form = FunkyForm()
-	args = {}
-	args.update(csrf(request))
-	    
-	args['formset'] = formset
-	args['form'] = form
-	args['profile_id'] = profile_id
-	return render_to_response('createPapers.html', args)
+    if request.method == 'POST':
+        
+        FunkyFormSet = formset_factory(FunkyForm,extra=3, max_num=3)
+        formset = FunkyFormSet(request.POST)        
+        form = FunkyForm(request.POST, request.FILES)
+        for f_form in formset:
+            if f_form.is_valid():
+                #found_user = Profile.objects.get(psrn=profile_id) 
+                a = f_form.save()
+                a.psrn = profile_id
+                a.save()
+
+        bform = BooksCountForm()
+        args = {}
+        args.update(csrf(request))            
+        args['form'] = bform
+        args['profile_id'] = profile_id
+        return render_to_response('books_count.html',args)
+    else:
+        FunkyFormSet = formset_factory(FunkyForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('createPapers.html', args)
+
+@login_required
+def books_count(request, profile_id):
+    if request.method == 'POST':
+        form = BooksCountForm(request.POST, request.FILES)
+        if form.is_valid():
+            a = form.save()
+            a.psrn = profile_id
+            numberOfBooks = form.cleaned_data.get('booksPublished')
+            a.save()
+        
+        form = FunkyBooksForm(request.POST,request.FILES)
+        FunkyFormSet = formset_factory(FunkyBooksForm,extra=numberOfBooks, max_num=numberOfBooks)
+        formset = FunkyFormSet()
+
+        args = {}
+        args.update(csrf(request))            
+        args['formset'] = formset
+        args['form'] = form
+        args['profile_id'] = profile_id
+        return render_to_response('books.html',args)        
+    else:
+        FunkyFormSet = formset_factory(FunkyForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('books_count.html', args)
+
+@login_required
+def books(request, profile_id):
+    if request.method == 'POST':
+        FunkyFormSet = formset_factory(FunkyBooksForm,extra=3, max_num=3)
+        formset = FunkyFormSet(request.POST)        
+        form = FunkyBooksForm(request.POST, request.FILES)
+        for f_form in formset:
+            if f_form.is_valid():
+                #found_user = Profile.objects.get(psrn=profile_id) 
+                a = f_form.save()
+                a.psrn = profile_id
+                a.save()
+
+        cForm = CourseCountForm()
+        args = {}
+        args.update(csrf(request))            
+        args['form'] = cForm
+        args['profile_id'] = profile_id
+        return render_to_response('course_count.html',args)
+        #return HttpResponseRedirect('/all/')
+    else:
+        FunkyFormSet = formset_factory(FunkyForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('books.html', args)
+
+
+
+@login_required
+def course_count(request, profile_id):
+    if request.method == 'POST':
+        form = CourseCountForm(request.POST, request.FILES)
+        if form.is_valid():
+            a = form.save()
+            a.psrn = profile_id
+            numberOfCourses = form.cleaned_data.get('coursesTaken')
+            print numberOfCourses
+            a.save()
+        
+        form = FunkyCourseForm(request.POST,request.FILES)
+        FunkyFormSet = formset_factory(FunkyCourseForm,extra=numberOfCourses, max_num=numberOfCourses)
+        formset = FunkyFormSet()
+
+        args = {}
+        args.update(csrf(request))            
+        args['formset'] = formset
+        args['form'] = form
+        args['profile_id'] = profile_id
+        return render_to_response('courses.html',args)        
+    else:
+        FunkyFormSet = formset_factory(FunkyForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('course_count.html', args)
+
+@login_required
+def courses(request, profile_id):
+    if request.method == 'POST':
+        FunkyFormSet = formset_factory(FunkyCourseForm,extra=3, max_num=3)
+        formset = FunkyFormSet(request.POST)        
+        form = FunkyCourseForm(request.POST, request.FILES)
+        for f_form in formset:
+            if f_form.is_valid():
+                #found_user = Profile.objects.get(psrn=profile_id) 
+                a = f_form.save()
+                a.psrn = profile_id
+                a.save()
+
+        raForm = ResearchAgencyCountForm()
+        args = {}
+        args.update(csrf(request))            
+        args['form'] = raForm
+        args['profile_id'] = profile_id
+        return render_to_response('researchAgency_count.html',args)
+        #return HttpResponseRedirect('/all/')
+    else:
+        FunkyFormSet = formset_factory(FunkyCourseForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyCourseForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('courses.html', args)
+
+
+
+
+@login_required
+def researchAgency_count(request, profile_id):
+    if request.method == 'POST':
+        form = ResearchAgencyCountForm(request.POST, request.FILES)
+        if form.is_valid():
+            a = form.save()
+            a.psrn = profile_id
+            numberOfGrants = form.cleaned_data.get('grants')
+            print numberOfGrants
+            a.save()
+        
+        form = FunkyCourseForm(request.POST,request.FILES)
+        FunkyFormSet = formset_factory(FunkyResearchAgencyForm,extra=numberOfGrants, max_num=numberOfGrants)
+        formset = FunkyFormSet()
+
+        args = {}
+        args.update(csrf(request))            
+        args['formset'] = formset
+        args['form'] = form
+        args['profile_id'] = profile_id
+        return render_to_response('researchAgency.html',args)        
+    else:
+        FunkyFormSet = formset_factory(FunkyForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('researchAgency_count.html', args)
+
+@login_required
+def researchAgency(request, profile_id):
+    if request.method == 'POST':
+        FunkyFormSet = formset_factory(FunkyResearchAgencyForm,extra=3, max_num=3)
+        formset = FunkyFormSet(request.POST)        
+        form = FunkyResearchAgencyForm(request.POST, request.FILES)
+        for f_form in formset:
+            if f_form.is_valid():
+                #found_user = Profile.objects.get(psrn=profile_id) 
+                a = f_form.save()
+                a.psrn = profile_id
+                a.save()
+
+        #form = FunkyForm(request.POST,request.FILES)
+        #FunkyFormSet = formset_factory(FunkyBooksForm,extra=numberOfBooks, max_num=numberOfBooks)
+        #formset = FunkyFormSet()
+
+        #args = {}
+        #args.update(csrf(request))            
+        #args['form'] = bform
+        #args['profile_id'] = profile_id
+        #return render_to_response('books_count.html',args)
+        return HttpResponseRedirect('/all/')
+    else:
+        FunkyFormSet = formset_factory(FunkyResearchAgencyForm, extra=10, max_num=10)
+        formset = FunkyFormSet()
+        form = FunkyResearchAgencyForm()
+    args = {}
+    args.update(csrf(request))
+        
+    args['formset'] = formset
+    args['form'] = form
+    args['profile_id'] = profile_id
+    return render_to_response('researchAgency.html', args)

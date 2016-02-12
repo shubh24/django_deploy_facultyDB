@@ -5,13 +5,15 @@
 {% if profiles.count > 0 %}
 {% for profile in profiles %}
     <div class = 'xyz'>
-    <h2><a href="/get/{{ profile.id }}/">{{ profile.name }}</a></h2>
+    <h2><a href="/get/{{profile.id}}/">{{ profile.name }}</a></h2>
     </div>
 {% endfor %}
 <div class='making'>
 <a href="/report">Create Report</a>
 <br/>
 <a href="/makePdf">Create PDF</a>
+<br/>
+<a href="/filters">Apply Filters</a>
 </div>
 {% else %}
 

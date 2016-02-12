@@ -3,7 +3,7 @@
 {% block content %}
 <div class='createProfile'>
 <center>
-<form action="/create/{{profile_id}}/" method="post" enctype="multipart/form-data">{% csrf_token %}
+<form action="/create/" method="post" enctype="multipart/form-data">{% csrf_token %}
 <ul style="list-style : none">
 {{form.as_ul}}
 </ul>
