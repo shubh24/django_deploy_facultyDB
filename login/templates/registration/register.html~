@@ -6,11 +6,11 @@
     <center>
     <form method="post" action=".">{% csrf_token %}
         <table border="0">
-            {{ form.as_table }}
+            {{ form }}
         </table>
 	<br/>
         <input type="submit" value="Register" />
-	<t/><t/><a href="/">Login</a>    
+	<a href="/">Login</a>    
     </form>
     </center>
     </div>

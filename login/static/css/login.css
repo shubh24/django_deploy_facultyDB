@@ -1,24 +1,29 @@
 
 body {
     padding-left: 15px;
-    font-family: 'Georgia';  
+    font-family: 'Georgia';
 }
 
 .page-header {
-    background-color: #43C6DB;
     margin-top: 0;
     padding: 20px 20px 20px 40px;
-    color : red;
 }
 
+[name="_register"]{
+    margin-left: 75px;    
+    width : 250px;
+}
 
+[name="_all_profs"]{
+    width : 250px;
+}
 .requirements {
     margin-top: 20;
     padding: 0px 20px 20px 40px;
     font-size : 150%;
 }
 
-.login-page,.createProfile,.createAcads,.createJobs,.profile,.filters,.createPapers{
+/*.login-page,.createProfile,.createAcads,.createJobs,.profile,.filters,.createPapers{
     font-size : 150%;
     text-align : center;
 }
@@ -26,7 +31,7 @@ body {
 .register-form{
         font-size : 150%;
 }
-
+*/
 .making{
     text-align : center;
     font-size : 200%;

@@ -1,19 +1,20 @@
 {% load staticfiles %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
+{% include 'material/includes/material_css.html' %}
+{% include 'material/includes/material_js.html' %}
 <html>
     <head>
 		<meta name="google-site-verification" content="g_loHV91xmOWok-WeHQkidQmesEfnCdV0jjSumJWZQA" />
         <title>Django Login Application |
         {% block title %}{% endblock %}</title>        
 	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 	<link rel="stylesheet" href="{% static "css/login.css" %}">    
     </head>
     <body>
 	<div class="page-header">
 		<span style="font-size:250%">
-			 <a href="/home">BITS Pilani</a>
+             <a href="/home">BITS Pilani</a>  
 		</span>
 		<span style="float : right;font-size:150%">
 			<a href="/logout" >Logout</a>

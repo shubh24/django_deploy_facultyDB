@@ -38,6 +38,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = (
+    'material',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,7 +78,12 @@ LOGIN_URL = '/accounts/login/'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql.django_db',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django_db',
+        'USER': 'shubhankar',
+        'PASSWORD': 'envy',
+        'HOST': 'localhost',   
+        'PORT': '8000'
     }
 }
 
@@ -98,4 +104,5 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'home/shubhankar/myapp/static/'
+

@@ -1,25 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
-{% block head %}Login{% endblock %}
+{% block head %}<center>Login</center>{% endblock %}
 {% block content %}
     {% if form.errors %}
         <p>Your username and password didn't match. Please try again.</p>
     {% endif %}
     <div class='login-page'>
     <center>
-    <form method="post" action=".">{% csrf_token %}
-        <table border="0">
-            <tr><th><label for="id_username">Username:</label></th><td>{{ form.username }}</td></tr>
-            <tr><th><label for="id_password">Password:</label></th><td>{{ form.password }}</td></tr>
-        </table>
-        <input type="submit" value="Login" />
+    <br/>
+    <form method="post" action = ".">
+    {% csrf_token %}
+    {{ form }}        
+    <button type="submit" name="_submit" class="btn">Login</button>
+    <input type="hidden" name="next" value="/home"/>
 	<br/><br/>
-	<a href="/all">All Profs</a>
-        <input type="hidden" name="next" value="/home" />
+	<button href="/all" name = "_all_profs" class = "btn">All Profs</button>
+	<button href="/register" name = "_register" class = "btn">Register</button>
     </form>
-    <a href="/register">Register</a>
-	<br/>
-	<a href = "{% url 'socialauth_begin' 'google-ouath2' %}"> Login with Google </a>
-    </center>
+	</center>
     </div>
 {% endblock %}
